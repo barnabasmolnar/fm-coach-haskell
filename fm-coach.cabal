@@ -1,0 +1,71 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: ff2f33debe12dd134c25009e639bb8e462135c3f39a3e7963e825bba86fda8b5
+
+name:           fm-coach
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/fm-coach#readme>
+homepage:       https://github.com/githubuser/fm-coach#readme
+bug-reports:    https://github.com/githubuser/fm-coach/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2022 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/fm-coach
+
+library
+  exposed-modules:
+      Formula
+      Parser.ParserUtils
+      Parser.ParserV1
+      Parser.ParserV2
+  other-modules:
+      Paths_fm_coach
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , scalpel
+    , validation
+  default-language: Haskell2010
+
+executable fm-coach-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_fm_coach
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , fm-coach
+    , scalpel
+    , validation
+  default-language: Haskell2010
+
+test-suite fm-coach-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_fm_coach
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , fm-coach
+    , scalpel
+    , validation
+  default-language: Haskell2010
