@@ -23,6 +23,8 @@ dependencies:
   - base >= 4.7 && < 5
   - scalpel
   - validation
+  - table-layout
+  - pretty-simple
 
 library:
   source-dirs: src

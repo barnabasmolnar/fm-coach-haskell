@@ -1,11 +1,27 @@
 module Main where
 
 import           Control.Exception              ( tryJust )
-import           Formula                        ( coachRatings )
+import           Formula                        ( Rating
+                                                    ( Rating
+                                                    , category
+                                                    , stars
+                                                    , weightedSum
+                                                    )
+                                                , coachRatings
+                                                )
 import           Parser.ParserUtils             ( Error(..) )
 import           Parser.ParserV2                ( makeCoach )
 import           System.Environment             ( getArgs )
 import           System.IO.Error                ( isDoesNotExistError )
+import           Text.Layout.Table              ( def
+                                                , numCol
+                                                , rowG
+                                                , tableString
+                                                , titlesH
+                                                , unicodeRoundS
+                                                )
+import           Text.Layout.Table.Spec.RowGroup
+                                                ( RowGroup )
 
 readFileSafe :: FilePath -> IO (Either [Error] String)
 readFileSafe path = tryJust handleError $ readFile path  where
@@ -28,4 +44,14 @@ main = do
             pure $ coachRatings coach
     case ratings of
         Left  er -> print er
-        Right rs -> print rs
+        Right rs -> printRatings rs
+
+ratingToRow :: Rating -> RowGroup String
+ratingToRow r = rowG [category r, show $ weightedSum r, show $ stars r]
+
+printRatings :: [Rating] -> IO ()
+printRatings ratings = putStrLn $ tableString
+    [def, numCol, numCol]
+    unicodeRoundS
+    (titlesH ["Category", "Weighted Sum", "Star Rating"])
+    (map ratingToRow ratings)
