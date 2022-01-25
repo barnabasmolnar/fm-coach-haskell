@@ -9,7 +9,9 @@ import           Formula                        ( Rating
                                                     )
                                                 , coachRatings
                                                 )
-import           Parser.ParserUtils             ( Error(..) )
+import           Parser.ParserUtils             ( Error(..)
+                                                , prettifyError
+                                                )
 import           Parser.ParserV2                ( makeCoach )
 import           System.Environment             ( getArgs )
 import           System.IO.Error                ( isDoesNotExistError )
@@ -43,7 +45,7 @@ main = do
             coach   <- makeCoach content
             pure $ coachRatings coach
     case ratings of
-        Left  er -> print er
+        Left  er -> mapM_ (putStrLn . prettifyError) er
         Right rs -> printRatings rs
 
 ratingToRow :: Rating -> RowGroup String
