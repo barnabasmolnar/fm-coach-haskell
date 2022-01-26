@@ -1,20 +1,19 @@
--- This version of the parser is a bit more simplistic and
--- does not collect all errors. See ParserV2 for an improved version.
-
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ApplicativeDo #-}
 
-module Parser.ParserV1 where
+module Parser.Parser where
 import           Control.Applicative            ( Alternative(empty) )
 import           Control.Monad                  ( guard )
 import           Data.Ix                        ( Ix(inRange) )
 import           Data.Maybe                     ( fromJust
                                                 , isJust
                                                 )
-import           Formula                        ( Rating
-                                                , coachRatings
+import           Data.Validation                ( Validation(..)
+                                                , toEither
                                                 )
-import           Parser.ParserUtils             ( AttributeValuePair
+import           Parser.ParserUtils             ( AttributeError(..)
+                                                , AttributeValuePair
                                                 , Coach(..)
                                                 , Error(..)
                                                 , eitherFromMaybe
@@ -28,13 +27,13 @@ import           Text.HTML.Scalpel              ( Scraper
                                                 )
 import           Text.Read                      ( readMaybe )
 
-lookup' :: String -> [AttributeValuePair] -> Either Error Int
+lookup' :: String -> [AttributeValuePair] -> Validation [AttributeError] Int
 lookup' attribute pairs = case lookup attribute pairs of
-    Nothing                    -> Left (MissingAttribute attribute)
-    Just n | inRange (1, 20) n -> Right n
-    Just n                     -> Left (OutOfRangeValue attribute n)
+    Nothing                    -> Failure [MissingAttribute attribute]
+    Just n | inRange (1, 20) n -> Success n
+    Just n                     -> Failure [OutOfRangeValue attribute n]
 
-parseToCoach :: [AttributeValuePair] -> Either Error Coach
+parseToCoach :: [AttributeValuePair] -> Validation [AttributeError] Coach
 parseToCoach pairs = do
     determination <- lookup' "Determination" pairs
     discipline    <- lookup' "Level of Discipline" pairs
@@ -61,12 +60,14 @@ attrValPairScraper = chroots "tr" $ inSerial $ do
     guard $ isJust val'
     pure (attr, fromJust val')
 
-scrapeStringLike' :: String -> Scraper String a -> Either Error a
-scrapeStringLike' str scraper =
-    eitherFromMaybe ParseFailed $ scrapeStringLike str scraper
-
 makeCoach :: String -> Either Error Coach
 makeCoach html = do
     pairs <- scrapeStringLike' html scrapeTables
-    parseToCoach pairs
+    case parseToCoach pairs of
+        Failure err   -> Left $ AttributeError err
+        Success coach -> Right coach
+
+scrapeStringLike' :: String -> Scraper String a -> Either Error a
+scrapeStringLike' str scraper =
+    eitherFromMaybe ParseFailed $ scrapeStringLike str scraper
 

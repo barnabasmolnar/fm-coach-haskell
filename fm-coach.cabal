@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9683d74753b385fa0e704c262588fa8a12842301d9eb0ed9755eb95ddc9ba717
+-- hash: 3b3ff87db78ffc785eecfa97ee944082613a4bf658e3a08f108986956c8248a3
 
 name:           fm-coach
 version:        0.1.0.0
@@ -28,9 +28,8 @@ source-repository head
 library
   exposed-modules:
       Formula
+      Parser.Parser
       Parser.ParserUtils
-      Parser.ParserV1
-      Parser.ParserV2
   other-modules:
       Paths_fm_coach
   hs-source-dirs:
