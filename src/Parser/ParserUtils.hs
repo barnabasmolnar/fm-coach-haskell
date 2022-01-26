@@ -1,9 +1,13 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Parser.ParserUtils where
-import           Data.List                      ( intercalate
-                                                , partition
+import           Data.List                      ( partition )
+import           Data.Text                      ( Text
+                                                , intercalate
+                                                , pack
                                                 )
 
-type AttributeValuePair = (String, Int)
+type AttributeValuePair = (Text, Int)
 
 data Coach = Coach
     { determination :: Int
@@ -25,12 +29,12 @@ data Error
     = AttributeError [AttributeError]
     | ParseFailed
     | MissingFile
-    | FileDoesNotExist String
+    | FileDoesNotExist Text
     deriving Show
 
 data AttributeError
-    = MissingAttribute String
-    | OutOfRangeValue String Int
+    = MissingAttribute Text
+    | OutOfRangeValue Text Int
     deriving Show
 
 eitherFromMaybe :: a -> Maybe b -> Either a b
@@ -40,34 +44,34 @@ isMissingAttributeError :: AttributeError -> Bool
 isMissingAttributeError (MissingAttribute _ ) = True
 isMissingAttributeError (OutOfRangeValue _ _) = False
 
-extractAttribute :: AttributeError -> String
+extractAttribute :: AttributeError -> Text
 extractAttribute (MissingAttribute a ) = a
-extractAttribute (OutOfRangeValue a v) = a ++ " (" ++ show v ++ ")"
+extractAttribute (OutOfRangeValue a v) = a <> " (" <> pack (show v) <> ")"
 
-missingAttrErrorsToStr :: [AttributeError] -> [String]
+missingAttrErrorsToStr :: [AttributeError] -> [Text]
 missingAttrErrorsToStr [] = []
 missingAttrErrorsToStr ms =
     [ "The following required attributes are missing: "
-          ++ intercalate ", " (map extractAttribute ms)
-          ++ "."
+          <> intercalate ", " (map extractAttribute ms)
+          <> "."
     ]
 
-outOfRangeValErrorsToStr :: [AttributeError] -> [String]
+outOfRangeValErrorsToStr :: [AttributeError] -> [Text]
 outOfRangeValErrorsToStr [] = []
 outOfRangeValErrorsToStr os =
     [ "Invalid values given for "
-          ++ intercalate ", " (map extractAttribute os)
-          ++ ". Please note valid values are 1-20."
+          <> intercalate ", " (map extractAttribute os)
+          <> ". Please note valid values are 1-20."
     ]
 
-prettifyAttributeErrors :: [AttributeError] -> String
+prettifyAttributeErrors :: [AttributeError] -> Text
 prettifyAttributeErrors es =
-    intercalate "\n" $ missingAttrErrorsToStr ms ++ outOfRangeValErrorsToStr os
+    intercalate "\n" $ missingAttrErrorsToStr ms <> outOfRangeValErrorsToStr os
     where (ms, os) = partition isMissingAttributeError es
 
-prettifyError :: Error -> String
+prettifyError :: Error -> Text
 prettifyError err = case err of
     AttributeError es  -> prettifyAttributeErrors es
     ParseFailed        -> "Could not parse file."
     MissingFile -> "Please provide a file you want to run this application on."
-    FileDoesNotExist p -> "The file " ++ p ++ " does not seem to exist."
+    FileDoesNotExist p -> "The file " <> p <> " does not seem to exist."

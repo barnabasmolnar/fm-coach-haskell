@@ -9,6 +9,9 @@ import           Data.Ix                        ( Ix(inRange) )
 import           Data.Maybe                     ( fromJust
                                                 , isJust
                                                 )
+import           Data.Text                      ( Text
+                                                , unpack
+                                                )
 import           Data.Validation                ( Validation(..)
                                                 , toEither
                                                 )
@@ -27,7 +30,7 @@ import           Text.HTML.Scalpel              ( Scraper
                                                 )
 import           Text.Read                      ( readMaybe )
 
-lookup' :: String -> [AttributeValuePair] -> Validation [AttributeError] Int
+lookup' :: Text -> [AttributeValuePair] -> Validation [AttributeError] Int
 lookup' attribute pairs = case lookup attribute pairs of
     Nothing                    -> Failure [MissingAttribute attribute]
     Just n | inRange (1, 20) n -> Success n
@@ -49,25 +52,25 @@ parseToCoach pairs = do
     shotStopping  <- lookup' "GK Shot Stopping" pairs
     pure $ Coach { .. }
 
-scrapeTables :: Scraper String [AttributeValuePair]
+scrapeTables :: Scraper Text [AttributeValuePair]
 scrapeTables = concat . take 3 <$> chroots "table" attrValPairScraper
 
-attrValPairScraper :: Scraper String [AttributeValuePair]
+attrValPairScraper :: Scraper Text [AttributeValuePair]
 attrValPairScraper = chroots "tr" $ inSerial $ do
     attr <- seekNext $ text "td"
     val  <- seekNext $ text "td"
-    let val' = readMaybe val
+    let val' = readMaybe $ unpack val
     guard $ isJust val'
     pure (attr, fromJust val')
 
-makeCoach :: String -> Either Error Coach
+makeCoach :: Text -> Either Error Coach
 makeCoach html = do
     pairs <- scrapeStringLike' html scrapeTables
     case parseToCoach pairs of
         Failure err   -> Left $ AttributeError err
         Success coach -> Right coach
 
-scrapeStringLike' :: String -> Scraper String a -> Either Error a
+scrapeStringLike' :: Text -> Scraper Text a -> Either Error a
 scrapeStringLike' str scraper =
     eitherFromMaybe ParseFailed $ scrapeStringLike str scraper
 

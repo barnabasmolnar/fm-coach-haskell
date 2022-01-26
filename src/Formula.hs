@@ -1,27 +1,16 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Formula where
 
+import           Data.Text                      ( Text )
 import           Parser.ParserUtils             ( AttributeValuePair
-                                                , Coach
-                                                  ( Coach
-                                                  , attacking
-                                                  , defending
-                                                  , determination
-                                                  , discipline
-                                                  , distribution
-                                                  , fitness
-                                                  , handling
-                                                  , mental
-                                                  , motivating
-                                                  , shotStopping
-                                                  , tactical
-                                                  , technical
-                                                  )
+                                                , Coach(..)
                                                 )
 
 type Formula = Coach -> Int
 
 data Rating = Rating
-  { category    :: String
+  { category    :: Text
   , weightedSum :: Int
   , stars       :: Float
   }

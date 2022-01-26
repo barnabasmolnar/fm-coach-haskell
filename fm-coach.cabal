@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3b3ff87db78ffc785eecfa97ee944082613a4bf658e3a08f108986956c8248a3
+-- hash: 4dbd77dfa7c00be17225178f9af642f8e239203664a6a6e0d9f933df8f5238ca
 
 name:           fm-coach
 version:        0.1.0.0
@@ -39,6 +39,7 @@ library
     , pretty-simple
     , scalpel
     , table-layout
+    , text
     , validation
   default-language: Haskell2010
 
@@ -55,6 +56,7 @@ executable fm-coach-exe
     , pretty-simple
     , scalpel
     , table-layout
+    , text
     , validation
   default-language: Haskell2010
 
@@ -72,5 +74,6 @@ test-suite fm-coach-test
     , pretty-simple
     , scalpel
     , table-layout
+    , text
     , validation
   default-language: Haskell2010

@@ -1,6 +1,11 @@
 module Main where
 
 import           Control.Exception              ( tryJust )
+import           Data.Text                      ( Text
+                                                , pack
+                                                , unpack
+                                                )
+import qualified Data.Text.IO                  as IO
 import           Formula                        ( Rating(..)
                                                 , coachRatings
                                                 )
@@ -20,12 +25,12 @@ import           Text.Layout.Table              ( def
 import           Text.Layout.Table.Spec.RowGroup
                                                 ( RowGroup )
 
-readFileSafe :: FilePath -> IO (Either Error String)
-readFileSafe path = tryJust handleError $ readFile path  where
-    handleError e | isDoesNotExistError e = Just $ FileDoesNotExist path
+readFileSafe :: FilePath -> IO (Either Error Text)
+readFileSafe path = tryJust handleError $ IO.readFile path  where
+    handleError e | isDoesNotExistError e = Just $ FileDoesNotExist $ pack path
                   | otherwise             = Nothing
 
-getFileContent :: IO (Either Error String)
+getFileContent :: IO (Either Error Text)
 getFileContent = do
     args <- getArgs
     case args of
@@ -40,11 +45,12 @@ main = do
             coach   <- makeCoach content
             pure $ coachRatings coach
     case ratings of
-        Left  er -> putStrLn $ prettifyError er
+        Left  er -> IO.putStrLn $ prettifyError er
         Right rs -> printRatings rs
 
 ratingToRow :: Rating -> RowGroup String
-ratingToRow r = rowG [category r, show $ weightedSum r, show $ stars r]
+ratingToRow r =
+    rowG [unpack $ category r, show $ weightedSum r, show $ stars r]
 
 printRatings :: [Rating] -> IO ()
 printRatings ratings = putStrLn $ tableString

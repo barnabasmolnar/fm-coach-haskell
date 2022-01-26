@@ -25,6 +25,7 @@ dependencies:
   - validation
   - table-layout
   - pretty-simple
+  - text
 
 library:
   source-dirs: src
